@@ -1,0 +1,21 @@
+<%= form_for(@through_reference) do |f| %>
+  <% if @through_reference.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@through_reference.errors.count, "error") %> prohibited this through_reference from being saved:</h2>
+
+      <ul>
+      <% @through_reference.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :description %><br />
+    <%= f.text_field :description %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

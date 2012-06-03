@@ -1,0 +1,23 @@
+<h1>Listing through_references</h1>
+
+<table>
+  <tr>
+    <th>Description</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @through_references.each do |through_reference| %>
+  <tr>
+    <td><%= through_reference.description %></td>
+    <td><%= link_to 'Show', through_reference %></td>
+    <td><%= link_to 'Edit', edit_through_reference_path(through_reference) %></td>
+    <td><%= link_to 'Destroy', through_reference, confirm: 'Are you sure?', method: :delete %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Through reference', new_through_reference_path %>

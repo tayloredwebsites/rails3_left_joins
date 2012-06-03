@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120603130739) do
+ActiveRecord::Schema.define(:version => 20120603145322) do
 
   create_table "fk_references", :force => true do |t|
     t.integer  "lookup_id"
@@ -27,6 +27,12 @@ ActiveRecord::Schema.define(:version => 20120603130739) do
     t.string   "value"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
+  end
+
+  create_table "through_references", :force => true do |t|
+    t.string   "description"
+    t.datetime "created_at",  :null => false
+    t.datetime "updated_at",  :null => false
   end
 
 end
