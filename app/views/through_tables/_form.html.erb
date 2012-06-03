@@ -1,0 +1,29 @@
+<%= form_for(@through_table) do |f| %>
+  <% if @through_table.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@through_table.errors.count, "error") %> prohibited this through_table from being saved:</h2>
+
+      <ul>
+      <% @through_table.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :through_reference %><br />
+    <%= f.text_field :through_reference %>
+  </div>
+  <div class="field">
+    <%= f.label :lookup %><br />
+    <%= f.text_field :lookup %>
+  </div>
+  <div class="field">
+    <%= f.label :description %><br />
+    <%= f.text_field :description %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

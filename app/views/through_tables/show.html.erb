@@ -1,0 +1,20 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Through reference:</b>
+  <%= @through_table.through_reference %>
+</p>
+
+<p>
+  <b>Lookup:</b>
+  <%= @through_table.lookup %>
+</p>
+
+<p>
+  <b>Description:</b>
+  <%= @through_table.description %>
+</p>
+
+
+<%= link_to 'Edit', edit_through_table_path(@through_table) %> |
+<%= link_to 'Back', through_tables_path %>

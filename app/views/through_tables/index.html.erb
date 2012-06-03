@@ -1,0 +1,27 @@
+<h1>Listing through_tables</h1>
+
+<table>
+  <tr>
+    <th>Through reference</th>
+    <th>Lookup</th>
+    <th>Description</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @through_tables.each do |through_table| %>
+  <tr>
+    <td><%= through_table.through_reference %></td>
+    <td><%= through_table.lookup %></td>
+    <td><%= through_table.description %></td>
+    <td><%= link_to 'Show', through_table %></td>
+    <td><%= link_to 'Edit', edit_through_table_path(through_table) %></td>
+    <td><%= link_to 'Destroy', through_table, confirm: 'Are you sure?', method: :delete %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Through table', new_through_table_path %>

@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  through_reference: 
+  lookup: 
+  description: MyString
+
+two:
+  through_reference: 
+  lookup: 
+  description: MyString

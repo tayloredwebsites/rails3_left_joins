@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120603145322) do
+ActiveRecord::Schema.define(:version => 20120603161214) do
 
   create_table "fk_references", :force => true do |t|
     t.integer  "lookup_id"
@@ -34,5 +34,16 @@ ActiveRecord::Schema.define(:version => 20120603145322) do
     t.datetime "created_at",  :null => false
     t.datetime "updated_at",  :null => false
   end
+
+  create_table "through_tables", :force => true do |t|
+    t.integer  "through_reference_id"
+    t.integer  "lookup_id"
+    t.string   "description"
+    t.datetime "created_at",           :null => false
+    t.datetime "updated_at",           :null => false
+  end
+
+  add_index "through_tables", ["lookup_id"], :name => "index_through_tables_on_lookup_id"
+  add_index "through_tables", ["through_reference_id"], :name => "index_through_tables_on_through_reference_id"
 
 end

@@ -1,4 +1,6 @@
 LeftJoinTest::Application.routes.draw do
+  resources :through_tables
+
   resources :through_references
 
   resources :fk_references
