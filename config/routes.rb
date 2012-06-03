@@ -1,4 +1,6 @@
 LeftJoinTest::Application.routes.draw do
+  resources :lookups
+
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
