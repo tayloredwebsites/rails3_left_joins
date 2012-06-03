@@ -12,12 +12,12 @@
   <% end %>
 
   <div class="field">
-    <%= f.label :through_reference %><br />
-    <%= f.text_field :through_reference %>
+    <%= f.label :through_reference_id %><br />
+    <%= f.select :through_reference_id, options_from_collection_for_select(@through_references, "id", "description") %>
   </div>
   <div class="field">
-    <%= f.label :lookup %><br />
-    <%= f.text_field :lookup %>
+    <%= f.label :lookup_id %><br />
+    <%= f.select :lookup_id, options_from_collection_for_select(@lookups, "id", "name") %>
   </div>
   <div class="field">
     <%= f.label :description %><br />

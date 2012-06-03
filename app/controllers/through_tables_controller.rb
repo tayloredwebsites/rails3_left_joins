@@ -1,5 +1,11 @@
 
 class ThroughTablesController < ApplicationController
+
+	before_filter do |controller|
+		@lookups = Lookup.all
+		@through_references = ThroughReference.all
+	end
+
   # GET /through_tables
   # GET /through_tables.json
   def index
