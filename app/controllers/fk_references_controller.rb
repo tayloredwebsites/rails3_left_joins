@@ -1,5 +1,10 @@
 
 class FkReferencesController < ApplicationController
+
+	before_filter do |controller|
+		@lookups = Lookup.all
+	end
+
   # GET /fk_references
   # GET /fk_references.json
   def index
