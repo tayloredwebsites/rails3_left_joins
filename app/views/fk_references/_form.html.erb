@@ -1,0 +1,25 @@
+<%= form_for(@fk_reference) do |f| %>
+  <% if @fk_reference.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@fk_reference.errors.count, "error") %> prohibited this fk_reference from being saved:</h2>
+
+      <ul>
+      <% @fk_reference.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :lookup %><br />
+    <%= f.text_field :lookup %>
+  </div>
+  <div class="field">
+    <%= f.label :description %><br />
+    <%= f.text_field :description %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

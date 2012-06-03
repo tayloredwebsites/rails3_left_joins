@@ -1,4 +1,6 @@
 LeftJoinTest::Application.routes.draw do
+  resources :fk_references
+
   resources :lookups
 
   # The priority is based upon order of creation:

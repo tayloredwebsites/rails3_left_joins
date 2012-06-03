@@ -1,0 +1,15 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Lookup:</b>
+  <%= @fk_reference.lookup %>
+</p>
+
+<p>
+  <b>Description:</b>
+  <%= @fk_reference.description %>
+</p>
+
+
+<%= link_to 'Edit', edit_fk_reference_path(@fk_reference) %> |
+<%= link_to 'Back', fk_references_path %>

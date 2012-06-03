@@ -11,7 +11,16 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120603130103) do
+ActiveRecord::Schema.define(:version => 20120603130739) do
+
+  create_table "fk_references", :force => true do |t|
+    t.integer  "lookup_id"
+    t.string   "description"
+    t.datetime "created_at",  :null => false
+    t.datetime "updated_at",  :null => false
+  end
+
+  add_index "fk_references", ["lookup_id"], :name => "index_fk_references_on_lookup_id"
 
   create_table "lookups", :force => true do |t|
     t.string   "name"

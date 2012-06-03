@@ -1,0 +1,2 @@
+module FkReferencesHelper
+end
