@@ -1,7 +1,8 @@
 <h1>Listing lookups</h1>
 
-<table>
+<table border="1">
   <tr>
+    <th>ID</th>
     <th>Name</th>
     <th>Value</th>
     <th></th>
@@ -11,6 +12,7 @@
 
 <% @lookups.each do |lookup| %>
   <tr>
+    <td><%= lookup.id %></td>
     <td><%= lookup.name %></td>
     <td><%= lookup.value %></td>
     <td><%= link_to 'Show', lookup %></td>
@@ -23,3 +25,46 @@
 <br />
 
 <%= link_to 'New Lookup', new_lookup_path %>
+
+<br />
+
+<h2>FK References Left Join</h2>
+
+<table border="1">
+  <tr>
+    <th>ID</th>
+    <th>Name</th>
+    <th>Value</th>
+    <th>Ref ID</th>
+    <th>Ref Description</th>
+  </tr>
+
+<% @lookups_through.each do |lookup|
+	if lookup.fk_references.size == 0
+	%>
+	  <tr>
+	    <td><%= lookup.id %></td>
+	    <td><%= lookup.name %></td>
+	    <td><%= lookup.value %></td>
+	    <td>&nbsp;</td>
+	    <td>&nbsp;</td>
+	  </tr>
+	<%
+	else
+		lookup.fk_references.each do |ref|
+	%>
+	  <tr>
+	    <td><%= lookup.id %></td>
+	    <td><%= lookup.name %></td>
+	    <td><%= lookup.value %></td>
+	    <td><%= ref.id %></td>
+	    <td><%= ref.description %></td>
+	  </tr>
+	<%
+		end
+	end
+end
+%>
+</table>
+
+<br />

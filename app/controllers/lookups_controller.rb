@@ -4,6 +4,7 @@ class LookupsController < ApplicationController
   # GET /lookups.json
   def index
     @lookups = Lookup.all
+    @lookups_through = Lookup.includes(:fk_references)
 
     respond_to do |format|
       format.html # index.html.erb

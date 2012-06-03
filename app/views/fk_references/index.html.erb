@@ -2,7 +2,7 @@
 
 <table>
   <tr>
-    <th>Lookup</th>
+    <th>Lookup ID</th>
     <th>Description</th>
     <th></th>
     <th></th>
@@ -11,7 +11,7 @@
 
 <% @fk_references.each do |fk_reference| %>
   <tr>
-    <td><%= fk_reference.lookup %></td>
+    <td><%= fk_reference.lookup.id %></td>
     <td><%= fk_reference.description %></td>
     <td><%= link_to 'Show', fk_reference %></td>
     <td><%= link_to 'Edit', edit_fk_reference_path(fk_reference) %></td>
