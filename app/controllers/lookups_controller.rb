@@ -4,7 +4,10 @@ class LookupsController < ApplicationController
   # GET /lookups.json
   def index
     @lookups = Lookup.all
-    @lookups_through = Lookup.includes(:fk_references)
+    @lookup_references = Lookup.includes(:fk_references)
+    @lookup_through_tables = Lookup.includes(:through_tables).includes(:through_references)
+    # @lookup_through_tables = Lookup.includes(:through_tables, :through_references)
+    # @lookup_through_tables = Lookup.includes(:through_tables => :through_references)
 
     respond_to do |format|
       format.html # index.html.erb

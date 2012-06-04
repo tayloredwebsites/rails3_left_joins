@@ -39,7 +39,7 @@
     <th>Ref Description</th>
   </tr>
 
-<% @lookups_through.each do |lookup|
+<% @lookup_references.each do |lookup|
 	if lookup.fk_references.size == 0
 	%>
 	  <tr>
@@ -64,6 +64,141 @@
 		end
 	end
 end
+%>
+</table>
+
+<br />
+
+<%= link_to 'New Lookup', new_lookup_path %>
+
+<br />
+
+<h2>Through Tables Left Join</h2>
+
+<table border="1">
+  <tr>
+    <th>ID</th>
+    <th>Name</th>
+    <th>Value</th>
+    <th>Through Table ID</th>
+    <th>Through Table Description</th>
+  </tr>
+
+<% @lookup_references.each do |lookup|
+	if lookup.through_tables.size == 0
+	%>
+	  <tr>
+	    <td><%= lookup.id %></td>
+	    <td><%= lookup.name %></td>
+	    <td><%= lookup.value %></td>
+	    <td>&nbsp;</td>
+	    <td>&nbsp;</td>
+	  </tr>
+	<%
+	else
+		lookup.through_tables.each do |thru|
+	%>
+	  <tr>
+	    <td><%= lookup.id %></td>
+	    <td><%= lookup.name %></td>
+	    <td><%= lookup.value %></td>
+	    <td><%= thru.id %></td>
+	    <td><%= thru.description %></td>
+	  </tr>
+	<%
+		end
+	end
+end
+%>
+</table>
+
+<br />
+
+<h2>Through References Left Join</h2>
+
+<table border="1">
+  <tr>
+    <th>ID</th>
+    <th>Name</th>
+    <th>Value</th>
+    <th>Through Reference ID</th>
+    <th>Through Reference Description</th>
+  </tr>
+
+<%
+@lookup_references.each do |lookup|
+	if lookup.through_references.size == 0
+%>
+  <tr>
+    <td><%= lookup.id %></td>
+    <td><%= lookup.name %></td>
+    <td><%= lookup.value %></td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+<%
+	else
+		lookup.through_references.each do |ref|
+%>
+  <tr>
+    <td><%= lookup.id %></td>
+    <td><%= lookup.name %></td>
+    <td><%= lookup.value %></td>
+    <td><%= ref.id %></td>
+    <td><%= ref.description %></td>
+  </tr>
+			<%
+		end #lookup.through_tables.each
+	end # if lookup.through_tables.size == 0
+end # @lookup_references.each
+%>
+</table>
+
+<br />
+
+<h2>Through Tables and Through References Left Join</h2>
+
+<table border="1">
+  <tr>
+    <th>ID</th>
+    <th>Name</th>
+    <th>Value</th>
+    <th>Through Table ID</th>
+    <th>Through Table Description</th>
+    <th>Through References ID</th>
+    <th>Through References Description</th>
+  </tr>
+
+<%
+@lookup_references.each do |lookup|
+	if lookup.through_tables.size == 0
+%>
+  <tr>
+    <td><%= lookup.id %></td>
+    <td><%= lookup.name %></td>
+    <td><%= lookup.value %></td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+<%
+	else
+		lookup.through_tables.each do |thru|
+%>
+  <tr>
+    <td><%= lookup.id %></td>
+    <td><%= lookup.name %></td>
+    <td><%= lookup.value %></td>
+    <td><%= thru.id %></td>
+    <td><%= thru.description %></td>
+    <td><%= thru.through_reference.id %></td>
+    <td><%= thru.through_reference.description %></td>
+  </tr>
+<%
+		end #lookup.through_tables.each
+	end # if lookup.through_tables.size == 0
+end # @lookup_references.each
 %>
 </table>
 
