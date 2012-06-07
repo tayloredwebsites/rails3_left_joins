@@ -1,0 +1,40 @@
+<table border="1">
+  <tr>
+    <th>Lookup ID</th>
+    <th>Lookup Name</th>
+    <th>Lookup Value</th>
+    <th>Through Table ID</th>
+    <th>Through Table Description</th>
+    <th>Main Item ID</th>
+    <th>Main Item Description</th>
+  </tr>
+
+<%
+references_sql.each do |lookup|
+	if lookup.through_tables.size == 0
+%>
+  <tr>
+    <td><%= lookup.id %></td>
+    <td><%= lookup.name %></td>
+    <td><%= lookup.value %></td>
+    <td colspan="4">No through_tables entry</td>
+  </tr>
+<%
+	else
+		lookup.through_tables.each do |thru|
+%>
+  <tr>
+    <td><%= lookup.id %></td>
+    <td><%= lookup.name %></td>
+    <td><%= lookup.value %></td>
+    <td><%= thru.id %></td>
+    <td><%= thru.description %></td>
+    <td><%= thru.through_reference.id %></td>
+    <td><%= thru.through_reference.description %></td>
+  </tr>
+<%
+		end #lookup.through_tables.each
+	end # if lookup.through_tables.size == 0
+end # @lookup_references.each
+%>
+</table>

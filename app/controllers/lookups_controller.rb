@@ -5,9 +5,23 @@ class LookupsController < ApplicationController
   def index
     @lookups = Lookup.all
     @lookup_references = Lookup.includes(:fk_references)
-    @lookup_through_tables = Lookup.includes(:through_tables).includes(:through_references)
+    @lookup_through_tables = Lookup.includes(:through_tables).includes(:through_references).order('lookups.id')
     # @lookup_through_tables = Lookup.includes(:through_tables, :through_references)
     # @lookup_through_tables = Lookup.includes(:through_tables => :through_references)
+    @lookup_for_reference_where = Lookup.includes(:through_tables).includes(:through_references).where("through_references.id = 1").order('lookups.id') # does not return lookup.id = 3, and returns a through_references.id = 2 ?????
+    @lookup_for_reference_left_join_on_through_table = Lookup.joins("LEFT OUTER JOIN through_tables ON (lookups.id = through_tables.lookup_id AND through_tables.through_reference_id = 1)" ).includes(:through_references).order('lookups.id') # it seems to ignores the AND in the ON clause
+    @lookup_for_reference_left_join_on_reference_table = Lookup.joins("LEFT OUTER JOIN through_tables ON lookups.id = through_tables.lookup_id").joins("LEFT OUTER JOIN through_references ON (through_references.id = through_tables.through_reference_id AND through_references.id = 1)" ) # it seems to ignores the AND in the ON clause
+    @lookup_for_reference_find_by_sql_through_tables = Lookup.find_by_sql("SELECT * FROM lookups LEFT OUTER JOIN through_tables ON (through_tables.lookup_id = lookups.id AND through_tables.through_reference_id = 1) LEFT OUTER JOIN through_references ON through_references.id = through_tables.through_reference_id ORDER BY lookups.value, through_references.id" )
+     @lookup_for_reference_find_by_sql_through_references = Lookup.find_by_sql("SELECT * FROM lookups LEFT OUTER JOIN through_tables ON through_tables.lookup_id = lookups.id LEFT OUTER JOIN through_references ON (through_references.id = through_tables.through_reference_id AND through_references.id = 1) ORDER BY lookups.value, through_references.id" )
+    
+     Rails.logger.debug ("* LookupsController.index @lookup_for_reference_find_by_sql_through_tables")
+     @lookup_for_reference_find_by_sql_through_tables.each do |row|
+       Rails.logger.debug ("***** LookupsController.index row = #{row.inspect.to_s}")
+       Rails.logger.debug ("***   LookupsController.index through_tables = #{row.through_tables}")
+       Rails.logger.debug ("*     LookupsController.index through_references = #{row.through_references}")
+     end
+     # note sqlite3 only returns the lookups with no joins (missing fields)
+     # postgreSQL  returns both lookups with no joins(missing fields), as well as the entire join table
 
     respond_to do |format|
       format.html # index.html.erb
