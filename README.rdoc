@@ -1,0 +1,163 @@
+== Problems with Rails 3 Active Record Query Interface in Has Many Through
+
+I have been having a problem with the Rails 3 Active Record Query Interface, and I have not been able to find any helpful posts on it. I am posting this, assuming that my problem is real, and that a solution has not been posted anywhere.
+
+I decided to create this separate project to avoid any other complications.
+
+I decided to post the code to github for others to review, and to post the website to heroku for others to seeing how it runs.
+
+I have been using PostgreSQL and sqlite3, and both have given me problems, with some slight variations in the actual results.
+Introduction to Database Model
+Lookup Items for a Main Item
+
+First this application will have lookup items, in this case there are three.
+=== Lookups table Listing
+    ID   Name 	Value 			
+    1 	Lookup Item 1 	1 	Show 	Edit 	Destroy
+    2 	Lookup Item 2 	2 	Show 	Edit 	Destroy
+    3 	Lookup Item 3 	3 	Show 	Edit 	Destroy
+
+We are also going to have a number of Main Items (through_references table) should be able to have any combination of lookup items, and to conveniently be able to click the relevant lookup items say through check boxes.
+
+If we want to have a listing if all the lookup items, and the Main Items that correspond with them, we can LEFT JOIN the 'lookups' table with the Main Items (through_references) table.
+
+This situation is a has_many :through database model (I am avoiding HABTM as is often recommended). In this case we have a 'Main Items' (through_references) table that can point to any combination of lookups items, through the 'through_tables' (join table if you will).
+=== Adding a LEFT OUTER JOIN
+
+    Lookup.includes(:through_tables).includes(:through_references).order('lookups.id')
+
+Corresponding SQL: SELECT * FROM lookups LEFT OUTER JOIN through_tables ON lookups.id = through_tables.lookup_id LEFT OUTER JOIN through_references ON through_references.id = through_tables.through_reference_id
+    Lookup ID 	Lookup Name 	Lookup Value 	Through Table ID 	Through Table Description 	Main Item ID 	Main Item Description
+    1 	Lookup Item 1 	1 	1 	Main Item 1 has Lookup item 1 	1 	Main Item 1
+    1 	Lookup Item 1 	1 	3 	Main Item 2 has Lookup item 1 	2 	Main Item 2
+    2 	Lookup Item 2 	2 	4 	Main Item 2 has Lookup item 2 	2 	Main Item 2
+    3 	Lookup Item 3 	3 	2 	Main Item 1 has Lookup item 3 	1 	Main Item 1
+
+We now have a table with ALL of the lookup items listed, and ALL of the Main Items joined in, with the Lookup Items duplicated when there are more than one Main Items referencing it.
+
+From the Lookups table perspective, we have Lookup Item 1 being pointed to by both Main Items 1 and 2, Lookup Item 2 only pointed to by Main Item 2 and Lookup Item 3 only pointed to by Main Item 1
+
+So, for example, if we wanted to list all of the lookup items pointed to by Main Item 1, we would then get Lookup Items 1 and 3 as selected.
+
+What we get from Active REcord Query Interface is what I expected.
+=== Lookup Items for a Main Item
+
+If we wanted to list all of the lookup items pointed to by Main Item 1, we would then get Lookup Items 1 and 3 as selected.
+
+If we want to have a listing if all the lookup items only for Main Item 1, whether it is selected or not, we will need to have the entire listing of all lookup items, 'left joined' with the Main Items, but only joined for Main Item 1.
+
+=== Add a WHERE clause to specify a Main Item ID = 1
+
+I have heard some people implying that by simply putting a where clause on this statement, you get what you need, which is not correct. Let's see what happens if we do.
+
+Corresponding SQL:
+
+    SELECT * FROM lookups LEFT OUTER JOIN through_tables ON lookups.id = through_tables.lookup_id LEFT OUTER JOIN through_references ON through_references.id = through_tables.through_reference_id WHERE through_references.id = 1 ORDER BY lookups.id
+
+What is returned from PostgreSQL:
+
+    1;"Lookup Item 1";"1";"2012-06-06 17:14:40.819791";"2012-06-06 17:14:40.819791";1;1;1;"Main Item 1 has Lookup item 1";"2012-06-06 17:17:31.355425";"2012-06-06 17:17:31.355425";1;"Main Item 1";"2012-06-06 17:16:30.004375";"2012-06-06 17:16:30.004375"
+    3;"Lookup Item 3";"3";"2012-06-06 17:15:14.700239";"2012-06-06 17:15:14.700239";2;1;3;"Main Item 1 has Lookup item 3";"2012-06-06 17:17:53.169715";"2012-06-06 17:17:53.169715";1;"Main Item 1";"2012-06-06 17:16:30.004375";"2012-06-06 17:16:30.004375"
+
+This is what I expected.
+
+Active Record Query Interface using simple where clause
+
+    Lookup.includes(:through_tables).includes(:through_references).where("through_references.id = 1").order('lookups.id')
+
+What is returned from Active Record Query Interface:
+    Lookup ID 	Lookup Name 	Lookup Value 	Through Table ID 	Through Table Description 	Main Item ID 	Main Item Description
+    1 	Lookup Item 1 	1 	3 	Main Item 2 has Lookup item 1 	2 	Main Item 2
+    1 	Lookup Item 1 	1 	1 	Main Item 1 has Lookup item 1 	1 	Main Item 1
+    3 	Lookup Item 3 	3 	2 	Main Item 1 has Lookup item 3 	1 	Main Item 1
+
+This is NOT what I expected.
+
+The where clause in the Active Record Query Interface does not seem to be working well, as it is passing back (only) one of the Main Item 2 entries, when the where clause specifies otherwise ("through_references.id = 1")
+
+I am suspecting that there is a bug in the Active Record Query Interface in how WHERE clauses are handled in :through situations
+
+But we haven't gotten to my main problem yet
+=== LEFT JOIN ON with AND clause
+
+What I really want to do is have a list of all of the lookup items, and if there are matching Main Items, have them appended on to the returned record, and if not, I want nulls. This is a technique that I have used for over 10 years.
+
+I usually solve this problem by using a special left outer join that not only specifies the fields to join the tables on, but also to do something like a where clause during the join. This makes sure that the condition is applied to the records being joined, not to the entire set of records that a where clause normally does.
+
+Corresponding SQL:
+    SELECT * FROM lookups LEFT OUTER JOIN through_tables ON (lookups.id = through_tables.lookup_id AND through_tables.through_reference_id = 1) LEFT OUTER JOIN through_references ON through_references.id = through_tables.through_reference_id ORDER BY lookups.id
+
+Returned records:
+
+    1;"Lookup Item 1";"1";"2012-06-06 17:14:40.819791";"2012-06-06 17:14:40.819791";1;1;1;"Main Item 1 has Lookup item 1";"2012-06-06 17:17:31.355425";"2012-06-06 17:17:31.355425";1;"Main Item 1";"2012-06-06 17:16:30.004375";"2012-06-06 17:16:30.004375"
+    2;"Lookup Item 2";"2";"2012-06-06 17:14:59.584756";"2012-06-06 17:14:59.584756";;;;"";"";"";;"";"";""
+    3;"Lookup Item 3";"3";"2012-06-06 17:15:14.700239";"2012-06-06 17:15:14.700239";2;1;3;"Main Item 1 has Lookup item 3";"2012-06-06 17:17:53.169715";"2012-06-06 17:17:53.169715";1;"Main Item 1";"2012-06-06 17:16:30.004375";"2012-06-06 17:16:30.004375"
+
+This is what I expected.
+
+=== Active Record Query Interface using custom left join
+    Lookup.joins("LEFT OUTER JOIN through_tables ON (lookups.id = through_tables.lookup_id AND through_tables.through_reference_id = 1)" ).includes(:through_references).order('lookups.id')
+
+What is returned from Active Record Query Interface:
+    Lookup ID 	Lookup Name 	Lookup Value 	Through Table ID 	Through Table Description 	Main Item ID 	Main Item Description
+    1 	Lookup Item 1 	1 	1 	Main Item 1 has Lookup item 1 	1 	Main Item 1
+    1 	Lookup Item 1 	1 	3 	Main Item 2 has Lookup item 1 	2 	Main Item 2
+    2 	Lookup Item 2 	2 	4 	Main Item 2 has Lookup item 2 	2 	Main Item 2
+    3 	Lookup Item 3 	3 	2 	Main Item 1 has Lookup item 3 	1 	Main Item 1
+
+This is NOT what I expected.
+
+What we have here is identical to the simple left join (without the AND clause). This tells me that the AND clause is being ignored in the Active Record Query Interface.
+
+Is this a BUG, is this the intended effects, or am I missing something ?
+== Other Attempts to get it working
+=== Left Join when attaching the Main Table
+
+    Lookup.joins("LEFT OUTER JOIN through_tables ON lookups.id = through_tables.lookup_id").joins("LEFT OUTER JOIN through_references ON (through_references.id = through_tables.through_reference_id AND through_references.id = 1)" )
+
+    Lookup ID 	Lookup Name 	Lookup Value 	Through Table ID 	Through Table Description 	Main Item ID 	Main Item Description
+    1 	Lookup Item 1 	1 	3 	Main Item 2 has Lookup item 1 	2 	Main Item 2
+    1 	Lookup Item 1 	1 	1 	Main Item 1 has Lookup item 1 	1 	Main Item 1
+    1 	Lookup Item 1 	1 	3 	Main Item 2 has Lookup item 1 	2 	Main Item 2
+    1 	Lookup Item 1 	1 	1 	Main Item 1 has Lookup item 1 	1 	Main Item 1
+    2 	Lookup Item 2 	2 	4 	Main Item 2 has Lookup item 2 	2 	Main Item 2
+    3 	Lookup Item 3 	3 	2 	Main Item 1 has Lookup item 3 	1 	Main Item 1
+
+=== Using find_by_sql, joining the through/join table
+
+    Lookup.find_by_sql("SELECT * FROM lookups LEFT OUTER JOIN through_tables ON (through_tables.lookup_id = lookups.id AND through_tables.through_reference_id = 1) LEFT OUTER JOIN through_references ON through_references.id = through_tables.through_reference_id ORDER BY lookups.value, through_references.id" )
+
+    Lookup ID 	Lookup Name 	Lookup Value 	Through Table ID 	Through Table Description 	Main Item ID 	Main Item Description
+    1 	Lookup Item 1 	1 	3 	Main Item 2 has Lookup item 1 	2 	Main Item 2
+    1 	Lookup Item 1 	1 	1 	Main Item 1 has Lookup item 1 	1 	Main Item 1
+    	Lookup Item 2 	2 	No through_tables entry
+    1 	Lookup Item 3 	3 	3 	Main Item 2 has Lookup item 1 	2 	Main Item 2
+    1 	Lookup Item 3 	3 	1 	Main Item 1 has Lookup item 1 	1 	Main Item 1
+
+=== Using find_by_sql, joining the Main table
+
+    Lookup.find_by_sql("SELECT * FROM lookups LEFT OUTER JOIN through_tables ON through_tables.lookup_id = lookups.id LEFT OUTER JOIN through_references ON (through_references.id = through_tables.through_reference_id AND through_references.id = 1) ORDER BY lookups.value, through_references.id" )
+
+    Lookup ID 	Lookup Name 	Lookup Value 	Through Table ID 	Through Table Description 	Main Item ID 	Main Item Description
+    1 	Lookup Item 1 	1 	3 	Main Item 2 has Lookup item 1 	2 	Main Item 2
+    1 	Lookup Item 1 	1 	1 	Main Item 1 has Lookup item 1 	1 	Main Item 1
+    	Lookup Item 1 	1 	No through_tables entry
+    	Lookup Item 2 	2 	No through_tables entry
+    1 	Lookup Item 3 	3 	3 	Main Item 2 has Lookup item 1 	2 	Main Item 2
+    1 	Lookup Item 3 	3 	1 	Main Item 1 has Lookup item 1 	1 	Main Item 1
+
+=== Using includes with hash and Where
+
+	Lookup.includes(:through_tables => :through_references).where("through_tables.through_references_id = 1").order('lookups.id')
+	Lookup ID 	Lookup Name 	Lookup Value 	Through Table ID 	Through Table Description 	Main Item ID 	Main Item Description
+	1 	Lookup Item 1 	1 	1 	Main Item 1 has Lookup item 1 	1 	Main Item 1
+	3 	Lookup Item 3 	3 	2 	Main Item 1 has Lookup item 3 	1 	Main Item 1
+
+	This has brought sanity to the Where clause!!!
+
+So now the where clause is functioning as I would expect a SQL WHERE clause to work! I notice that records are being read from cache.
+
+Unfortunately, it still does not return all of the lookup items (since there is a where instead of a left join)
+
+Thanks to Greg Sterndale for this improvement.
+
