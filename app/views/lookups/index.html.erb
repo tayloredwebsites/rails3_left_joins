@@ -17,9 +17,6 @@
     <th>ID</th>
     <th>Name</th>
     <th>Value</th>
-    <th></th>
-    <th></th>
-    <th></th>
   </tr>
 
 <% @lookups.each do |lookup| %>
@@ -27,9 +24,6 @@
     <td><%= lookup.id %></td>
     <td><%= lookup.name %></td>
     <td><%= lookup.value %></td>
-    <td><%= link_to 'Show', lookup %></td>
-    <td><%= link_to 'Edit', edit_lookup_path(lookup) %></td>
-    <td><%= link_to 'Destroy', lookup, confirm: 'Are you sure?', method: :delete %></td>
   </tr>
 <% end %>
 </table>
@@ -100,7 +94,7 @@
 
 <p><strong>This is NOT what I expected.</strong></p>
 <p>What we have here is identical to the simple left join (without the AND clause).  This tells me that the AND clause is being ignored in the Active Record Query Interface.</p>
-<p><strong>Is this a BUG, is this the intended effects, or am I missing something ?</strong><br />
+<p><strong>Is this a BUG, is this the intended effects, or am I missing something ?</strong></p>
 
 <h2>Other Attempts to get it working</h2>
 <h3>Left Join when attaching the Main Table</h3>
@@ -123,3 +117,22 @@
 <%= render :partial => 'joins_table', :locals => { :references_sql => @lookup_for_reference_find_by_sql_through_references } %>
 
 <br />
+
+<h3>Using includes with hash and Where</h3>
+<p>Lookup.includes(:through_tables => :through_references).where("through_tables.through_references_id = 1").order('lookups.id')</p>
+
+<%= render :partial => 'joins_table', :locals => { :references_sql => @lookup_for_reference_includes_hash_where } %>
+
+<p><strong>This has brought sanity to the Where clause!!!</strong></p>
+<p>So now the where clause is functioning as I would expect a SQL WHERE clause to work!  I notice that records are being read from cache.</p>
+<p>Unfortunately, it still does not return all of the lookup items (since there is a where instead of a left join)</p>
+<p>Thanks to Greg Sterndale for this improvement.</p>
+
+<br />
+
+<!-- h3>Using includes with hash on Join</h3>
+<p>Lookup.includes(:through_tables => :through_reference => {:id => 1}).order('lookups.id') # invalid syntax</p -->
+
+<!-- %= render :partial => 'joins_table', :locals => { :references_sql => @lookup_for_reference_includes_hash_join } % -->
+
+<br / -->

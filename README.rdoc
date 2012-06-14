@@ -87,3 +87,20 @@ This is NOT what I expected.
 What we have here is identical to the simple left join (without the AND clause). This tells me that the AND clause is being ignored in the Active Record Query Interface.
 
 Is this a BUG, is this the intended effects, or am I missing something ?
+
+=== Using includes with hash and Where
+
+Lookup.includes(:through_tables => :through_references).where("through_tables.through_references_id = 1").order('lookups.id')
+Lookup ID 	Lookup Name 	Lookup Value 	Through Table ID 	Through Table Description 	Main Item ID 	Main Item Description
+1 	Lookup Item 1 	1 	1 	Main Item 1 has Lookup item 1 	1 	Main Item 1
+3 	Lookup Item 3 	3 	2 	Main Item 1 has Lookup item 3 	1 	Main Item 1
+
+This has brought sanity to the Where clause!!!
+
+So now the where clause is functioning as I would expect a SQL WHERE clause to work! I notice that records are being read from cache.
+
+Unfortunately, it still does not return all of the lookup items (since there is a where instead of a left join)
+
+Thanks to Greg Sterndale for this improvement.
+
+
