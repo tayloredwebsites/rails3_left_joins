@@ -130,9 +130,40 @@
 
 <br />
 
+<h3>includes references table directly (no includes of through_tables)</h3>
+<p>Lookup.includes(:through_references).order('lookups.id')</p>
+
+<%= render :partial => 'joins_table', :locals => { :references_sql => @lookup_reference } %>
+
+<br />
+
+<h3>includes references table directly with where</h3>
+<p>Lookup.includes(:through_references).where("through_tables.through_reference_id = 1").order('lookups.id')</p>
+
+<%= render :partial => 'joins_table', :locals => { :references_sql => @lookup_reference_where } %>
+
+<br />
+
+<h3>includes through table (only - no through_references table)</h3>
+<p>Lookup.includes(:through_tables).order('lookups.id')</p>
+
+<%= render :partial => 'joins_table', :locals => { :references_sql => @lookup_through } %>
+
+<br />
+
+<h3>includes through table (only - no through_references table) with where</h3>
+<p>Lookup.includes(:through_tables).where("through_references.id = 1").order('lookups.id')</p>
+
+<%= render :partial => 'joins_table', :locals => { :references_sql => @lookup_through_where } %>
+
+<br />
+
 <!-- h3>Using includes with hash on Join</h3>
 <p>Lookup.includes(:through_tables => :through_reference => {:id => 1}).order('lookups.id') # invalid syntax</p -->
 
 <!-- %= render :partial => 'joins_table', :locals => { :references_sql => @lookup_for_reference_includes_hash_join } % -->
 
 <br / -->
+<p><strong>Conclusion</strong></p>
+<p>The conclusion that I have come to is that once there is a two directional has_many_through database design (HASBM / Join Table situation), Joins and Includes do not work in the Active Record Query Interface!!!</p>
+<p>In a join table type design, I can see no alternative but to process the tables individually, and then merge them together in code (say by using a hash of the records indexed by ID).  :(</p>

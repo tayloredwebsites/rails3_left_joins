@@ -14,6 +14,10 @@ class LookupsController < ApplicationController
     @lookup_for_reference_find_by_sql_through_tables = Lookup.find_by_sql("SELECT * FROM lookups LEFT OUTER JOIN through_tables ON (through_tables.lookup_id = lookups.id AND through_tables.through_reference_id = 1) LEFT OUTER JOIN through_references ON through_references.id = through_tables.through_reference_id ORDER BY lookups.value, through_references.id" )
      @lookup_for_reference_find_by_sql_through_references = Lookup.find_by_sql("SELECT * FROM lookups LEFT OUTER JOIN through_tables ON through_tables.lookup_id = lookups.id LEFT OUTER JOIN through_references ON (through_references.id = through_tables.through_reference_id AND through_references.id = 1) ORDER BY lookups.value, through_references.id" )
      @lookup_for_reference_includes_hash_where = Lookup.includes(:through_tables => :through_reference).where("through_tables.through_reference_id = 1").order('lookups.id') # the where functions like a sql where properly here
+     @lookup_reference = Lookup.includes(:through_references).order('lookups.id')
+     @lookup_reference_where = Lookup.includes(:through_references).where("through_tables.through_reference_id = 1").order('lookups.id')
+     @lookup_through = Lookup.includes(:through_tables).order('lookups.id')
+     @lookup_through_where = Lookup.includes(:through_tables).where("through_tables.through_reference_id = 1").order('lookups.id') 
      # @lookup_for_reference_includes_hash_join = Lookup.includes(:through_tables => :through_reference => {:id => 1}).order('lookups.id') # invalid syntax
 
      Rails.logger.debug ("* LookupsController.index @lookup_for_reference_find_by_sql_through_tables")

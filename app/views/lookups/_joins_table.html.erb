@@ -29,8 +29,18 @@ references_sql.each do |lookup|
     <td><%= lookup.value %></td>
     <td><%= thru.id %></td>
     <td><%= thru.description %></td>
+<%
+		if thru.through_reference.nil?
+%>
+    <td colspan="2">No Through Table or Main Table entry</td>
+<%
+		else
+%>
     <td><%= thru.through_reference.id %></td>
     <td><%= thru.through_reference.description %></td>
+<%
+		end
+%>
   </tr>
 <%
 		end #lookup.through_tables.each
