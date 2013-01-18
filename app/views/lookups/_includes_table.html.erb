@@ -1,0 +1,45 @@
+<table border="1">
+  <tr>
+    <th>Through Table ID</th>
+    <th>Through Table Description</th>
+    <th>Lookup ID</th>
+    <th>Lookup Name</th>
+    <th>Lookup Value</th>
+    <th>Main Item ID</th>
+    <th>Main Item Description</th>
+  </tr>
+
+<%
+references_sql.each do |thru|
+	%>
+  <tr>
+    <td><%= thru.id %></td>
+    <td><%= thru.description %></td>
+	<%
+	if thru.lookup.nil?
+%>
+	<td colspan="3">No Lookup table</td>
+<%
+	else
+%>
+    <td><%= thru.lookup.id %></td>
+    <td><%= thru.lookup.name %></td>
+    <td><%= thru.lookup.value %></td>
+<%
+	end # thru.lookup.nil?
+	if thru.through_reference.nil?
+%>
+	<td colspan="2">No Reference table</td>
+<%
+	else
+%>
+    <td><%= thru.through_reference.id %></td>
+    <td><%= thru.through_reference.description %></td>
+<%
+	end # thru.reference.nil?
+	%>
+  </tr>
+	<%
+end # references_sql.each
+%>
+</table>
