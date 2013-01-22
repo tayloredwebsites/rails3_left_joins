@@ -167,7 +167,7 @@
 
 <br />
 
-<h3>use a Database View to join and use where clause to match id or null</h3>
+<h3>use a Database Stored Procedure (or Function) to join and use where clause to match id or null</h3>
 <p>Lookup.find_by_sql("SELECT * FROM lookup_through_proc(?)", 1)</p>
 
 <%= render :partial => 'views_table', :locals => { :references_sql => @lookup_through_proc } %>
