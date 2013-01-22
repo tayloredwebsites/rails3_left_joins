@@ -19,7 +19,9 @@ class LookupsController < ApplicationController
      @lookup_through = Lookup.includes(:through_tables).order('lookups.id')
      @lookup_through_where = Lookup.includes(:through_tables).where("through_tables.through_reference_id = 1").order('lookups.id') 
      # @lookup_for_reference_includes_hash_join = Lookup.includes(:through_tables => :through_reference => {:id => 1}).order('lookups.id') # invalid syntax
-
+     @lookup_through_view = Lookup.find_by_sql("SELECT * FROM view_lookup_items")
+     recid = 1
+     @lookup_through_proc = Lookup.find_by_sql(["SELECT * FROM lookup_through_proc( ? )", recid])
      Rails.logger.debug ("* LookupsController.index @lookup_for_reference_find_by_sql_through_tables")
      @lookup_for_reference_find_by_sql_through_tables.each do |row|
        Rails.logger.debug ("***** LookupsController.index row = #{row.inspect.to_s}")

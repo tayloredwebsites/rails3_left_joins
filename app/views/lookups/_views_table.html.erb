@@ -1,0 +1,27 @@
+<table border="1">
+  <tr>
+    <th>Lookup ID</th>
+    <th>Lookup Name</th>
+    <th>Lookup Value</th>
+    <th>Through Table ID</th>
+    <th>Through Table Description</th>
+    <th>Main Item ID</th>
+    <th>Main Item Description</th>
+  </tr>
+
+<%
+references_sql.each do |lookup|
+%>
+  <tr>
+    <td><%= lookup.id %></td>
+    <td><%= lookup.name %></td>
+    <td><%= lookup.value %></td>
+    <td></td>
+    <td></td>
+    <td><%= lookup.through_references_id %></td>
+    <td></td>
+  </tr>
+<%
+end # @lookup_references.each
+%>
+</table>

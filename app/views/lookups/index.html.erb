@@ -158,6 +158,24 @@
 
 <br />
 
+<h3>use a Database View to join and use where clause to match id or null</h3>
+<p>lookup.find_by_sql("SELECT * FROM view_lookup_items")</p>
+
+<%= render :partial => 'views_table', :locals => { :references_sql => @lookup_through_view } %>
+
+<p><strong>This works partially!  The data returned is correct, but it only works because the reference ID is hard coded in the database view join clause.  Thus we need to bring this into a stored procedure / database function.</strong></p>
+
+<br />
+
+<h3>use a Database View to join and use where clause to match id or null</h3>
+<p>Lookup.find_by_sql("SELECT * FROM lookup_through_proc(?)", 1)</p>
+
+<%= render :partial => 'views_table', :locals => { :references_sql => @lookup_through_proc } %>
+
+<p><strong>This works!!  The data returned is correct and the reference ID can be passed to the database view join clause through the stored procedure parameter.  It seems that this is the only way to get the proper joins when they are complicated.  This lets the database do the joins, flattens the data, and removes active record from the process.</strong></p>
+
+<br />
+
 <!-- h3>Using includes with hash on Join</h3>
 <p>Lookup.includes(:through_tables => :through_reference => {:id => 1}).order('lookups.id') # invalid syntax</p -->
 
@@ -165,5 +183,5 @@
 
 <br / -->
 <p><strong>Conclusion</strong></p>
-<p>The conclusion that I have come to is that once there is a two directional has_many_through database design (HASBM / Join Table situation), Joins and Includes do not work in the Active Record Query Interface!!!</p>
-<p>In a join table type design, I can see no alternative but to process the tables individually, and then merge them together in code (say by using a hash of the records indexed by ID).  :(</p>
+<p>The conclusion that I have come to is that a join that filters against a parameter do not work in the Active Record Query Interface!!!</p>
+<p>So we have two choices, one is to use a Stored Procedure or Function or to process the tables individually, and then merge them together in code (say by using a hash of the records indexed by ID).  Using a Stored procedure simplified the code significantly.  Because all records were passed as one recordset, it flattened out the data, which makes a lot of sense in this situation, and hence significantly simplified the code.  Optionally, we could also put the Stored Procedure or Function behind a model, so we could cache the records in Active Record.</p>
