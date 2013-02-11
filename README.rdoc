@@ -1,4 +1,8 @@
-== Problems with Rails 3 Active Record Query Interface in Has Many Through
+== Problems with Rails 3 Active Record Query Interface with join on ID
+
+This is the code behind a question that I {Posted on Stack Overflow}[http://stackoverflow.com/questions/10936985/problems-with-rails-3-active-record-query-interface-with-join-on-id].
+
+Update: Of special note here is that when I am doing these joins, I have been joining on IDs, to provide filtering of records. It seems that this does not work with Active Record Query Interface. If you do not want to see the gory details of my travails, you can skip down to see my workaround below.
 
 I have been having a problem with the Rails 3 Active Record Query Interface, and I have not been able to find any helpful posts on it. I am posting this, assuming that my problem is real, and that a solution has not been posted anywhere.
 
@@ -162,3 +166,55 @@ Unfortunately, it still does not return all of the lookup items (since there is 
 
 Thanks to Greg Sterndale for this improvement.
 
+== When I started experimenting with Views in Ruby On Rails, I decided to see if that would work here.  I was getting warm!
+
+===use a Database View to join and use where clause to match id or null
+
+    CREATE VIEW view_lookup_items AS
+    SELECT through_references.id as through_references_id, through_references.description as through_references_description, lookups.*
+    FROM lookups
+    LEFT OUTER JOIN through_tables ON through_tables.lookup_id = lookups.id AND through_tables.through_reference_id = 1
+    LEFT OUTER JOIN through_references ON through_references.id = through_tables.through_reference_id
+    ORDER BY lookups.name
+
+====Results:
+
+    lookup.find_by_sql("SELECT * FROM view_lookup_items")
+    Lookup ID     Lookup Name 	Lookup Value 	Through Table ID 	Through Table Description 	Main Item ID 	Main Item Description
+    1 	Lookup Item 1 	1 			1 	
+    2 	Lookup Item 2 	2 				
+    3 	Lookup Item 3 	3 			1 	
+
+This works partially! The data returned is correct, but it only works because the reference ID is hard coded in the database view join clause. Thus we need to bring this into a stored procedure / database function.
+
+===use a Database Stored Procedure (or Function) to join and use where clause to match id or null
+
+    CREATE OR REPLACE FUNCTION lookup_through_proc(IN reference_id integer)
+    RETURNS TABLE(through_references_id integer, through_references_description character varying, id integer, name character varying, value character varying, created_at timestamp without time zone, updated_at timestamp without time zone) AS
+    $BODY$
+    SELECT through_references.id, through_references.description, lookups.*
+    FROM lookups
+    LEFT OUTER JOIN through_tables ON (through_tables.lookup_id = lookups.id AND through_tables.through_reference_id = $1)
+    LEFT OUTER JOIN through_references ON through_references.id = through_tables.through_reference_id
+    ORDER BY lookups.name;
+    $BODY$
+    LANGUAGE sql VOLATILE
+    COST 100
+    ROWS 100;
+
+====Results:
+
+    Lookup.find_by_sql(["SELECT * FROM lookup_through_proc( ? )", 1])
+    Lookup ID 	Lookup Name 	Lookup Value 	Through Table ID 	Through Table Description 	Main Item ID 	Main Item Description
+    1 	Lookup Item 1 	1 			1 	
+    2 	Lookup Item 2 	2 				
+    3 	Lookup Item 3 	3 			1 	
+
+This works!! The data returned is correct and the reference ID can be passed to the database view join clause through the stored procedure parameter. It seems that this is the only way to get the proper joins when they are complicated. This lets the database do the joins, flattens the data, and removes active record from the process.
+
+
+==Conclusion
+
+The conclusion that I have come to is that a join that filters against a parameter do not work in the Active Record Query Interface!!!
+
+So we have two choices, one is to use a Stored Procedure or Function or to process the tables individually, and then merge them together in code (say by using a hash of the records indexed by ID). Using a Stored procedure simplified the code significantly. Because all records were passed as one recordset, it flattened out the data, which makes a lot of sense in this situation, and hence significantly simplified the code. Optionally, we could also put the Stored Procedure or Function behind a model, so we could cache the records in Active Record.
